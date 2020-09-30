@@ -36,6 +36,7 @@ def _fetch_all_videos_by_channel_id(channel_id: str) -> List[video_module.Video]
     videos: List[video_module.Video] = []
     page_token = ""
     while True:
+        print("*", end="", flush=True)
         json = _fetch_videos(channel_id, page_token)
         for item in json["items"]:
             if item["id"]["kind"] != "youtube#video":
@@ -45,6 +46,7 @@ def _fetch_all_videos_by_channel_id(channel_id: str) -> List[video_module.Video]
             page_token = json["nextPageToken"]
         else:
             break
+    print("")
     return videos
 
 

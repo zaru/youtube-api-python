@@ -50,6 +50,7 @@ def _fetch_videos_by_channel_id(channel_id: str) -> Union[List, Literal[False]]:
 
     chunked_video_id_list = _chunk_video_id_list(channel)
     for video_id_list in chunked_video_id_list:
+        print("*", end="", flush=True)
         video_statistics = _fetch_video_statistics(",".join(video_id_list))
         if not video_statistics["items"]:
             continue
@@ -58,6 +59,7 @@ def _fetch_videos_by_channel_id(channel_id: str) -> Union[List, Literal[False]]:
             index = _find_index(channel["videos"], "video_id", video_id)
             channel["videos"][index]["statistics"] = item["statistics"]
 
+    print("")
     return channel["videos"]
 
 
