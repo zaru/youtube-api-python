@@ -38,6 +38,8 @@ def _fetch_all_videos_by_channel_id(channel_id: str) -> List[video_module.Video]
     while True:
         print("*", end="", flush=True)
         json = _fetch_videos(channel_id, page_token)
+        if "items" not in json:
+            continue
         for item in json["items"]:
             if item["id"]["kind"] != "youtube#video":
                 continue

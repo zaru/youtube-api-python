@@ -1,7 +1,40 @@
 import modules.channel_module as channel_module
 import settings
 import csv
+import hashlib
+import datetime
 from dateutil.parser import parse
+
+
+def _convert_posting_interval(channel_list):
+    header = ["Channel", "ViewCount", "SubscriberCount", "VideCount", "PostingInterval"]
+    data = [header]
+    for channel_id in channel_list:
+        channel_data = channel_module.load_channel_from_file(channel_id)
+        latest_video = channel_data["videos"][0]
+        first_video = channel_data["videos"][-1]
+        to_date = datetime.datetime.strptime(
+            latest_video["published_at"], "%Y-%m-%dT%H:%M:%SZ"
+        )
+        from_date = datetime.datetime.strptime(
+            first_video["published_at"], "%Y-%m-%dT%H:%M:%SZ"
+        )
+        days = (to_date - from_date).days
+        interval = days / int(channel_data["video_count"])
+
+        row = [
+            channel_data["name"],
+            channel_data["view_count"],
+            channel_data["subscriber_count"],
+            channel_data["video_count"],
+            interval,
+        ]
+        data.append(row)
+
+    file_path = f"{settings.OUTPUT_DIR}/posting_interval.csv"
+    with open(file_path, "w") as f:
+        writer = csv.writer(f)
+        writer.writerows(data)
 
 
 def _convert_date_series_video_view_data(channel_list):
@@ -10,8 +43,9 @@ def _convert_date_series_video_view_data(channel_list):
     data = {}
     for channel_id in channel_list:
         channel_data = channel_module.load_channel_from_file(channel_id)
-        header.append(channel_id)
-        header.append(f"{channel_id}_title")
+        hex_channel_id = hashlib.md5(channel_id.encode("utf-8")).hexdigest()
+        header.append(hex_channel_id)
+        header.append(f"{hex_channel_id}_title")
         for video in channel_data["videos"]:
             date_obj = parse(video["published_at"])
             date_key = date_obj.strftime("%Y-%m-%d")
@@ -106,6 +140,7 @@ def main(*args):
     _convert_channel_data(channel_list)
     _convert_video_data(channel_list)
     _convert_date_series_video_view_data(channel_list)
+    _convert_posting_interval(channel_list)
 
 
 if __name__ == "__main__":

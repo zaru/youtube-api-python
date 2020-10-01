@@ -5,6 +5,7 @@ from bokeh.palettes import Dark2_5 as palette
 import itertools
 import pandas as pd
 import modules.channel_module as channel_module
+import hashlib
 
 channel_list_file_path = "./list.txt"
 channel_list = channel_module.get_channel_list(channel_list_file_path)
@@ -23,22 +24,24 @@ plot = figure(
 colors = itertools.cycle(palette)
 for channel_id, color in zip(channel_list, colors):
     channel_data = channel_module.load_channel_from_file(channel_id)
-    print(channel_data["id"])
+    hex_channel_id = hashlib.md5(channel_id.encode("utf-8")).hexdigest()
+    print(hex_channel_id)
     plot.line(
         x="Date",
-        y=channel_data["id"],
+        y=hex_channel_id,
         source=source,
         color=color,
         line_width=2,
         legend_label=channel_data["name"],
-        name=channel_data["id"],
+        name=hex_channel_id,
     )
     hover = HoverTool(
         tooltips=[
-            ("View", f"@{channel_data['id']}"),
-            ("Title", f"@{channel_data['id']}_title"),
+            ("View", f"@{hex_channel_id}"),
+            ("Channel", channel_data["name"]),
+            ("Title", f"@{hex_channel_id}_title"),
         ],
-        names=[channel_data["id"]],
+        names=[hex_channel_id],
     )
     plot.add_tools(hover)
 

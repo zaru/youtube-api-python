@@ -69,11 +69,11 @@ def _build_data(item) -> video_module.Video:
         "published_at": item["published_at"],
         "title": item["title"],
         "thumbnail_url": item["thumbnail_url"],
-        "view_count": item["statistics"]["viewCount"],
-        "like_count": item["statistics"]["likeCount"],
-        "dislike_count": item["statistics"]["dislikeCount"],
-        "favorite_count": item["statistics"]["favoriteCount"],
-        "comment_count": item["statistics"]["commentCount"],
+        "view_count": item["statistics"].get("viewCount", 0),
+        "like_count": item["statistics"].get("likeCount", 0),
+        "dislike_count": item["statistics"].get("dislikeCount", 0),
+        "favorite_count": item["statistics"].get("favoriteCount", 0),
+        "comment_count": item["statistics"].get("commentCount", 0),
     }
 
 
